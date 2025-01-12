@@ -157,7 +157,7 @@ for name,piece in Pieces.items():
         PIECES[name].extend(get_all_positions(orientation))
 
 def dfs(loc, board, pieces):
-    'Try to fit the remaing pieces onto the provided board.'
+    'Try to fit the remaining pieces onto the provided board.'
     global solutions, args
     r,c = loc
     # Try each piece in turn

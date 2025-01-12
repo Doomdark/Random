@@ -245,8 +245,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--all', action='store_true', help='Calculate all of the possible solutions rather than just the first.')
 args = parser.parse_args()
 
-#date = input('Input the required date, e.g. Feb 26: ')
-date = 'Jan 1'
+date = input('Input the required date, e.g. Feb 26: ')
+
 # Get the location of the day and month on the grid
 month_loc, day_loc = date_locs(G, date)
 

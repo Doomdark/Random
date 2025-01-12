@@ -200,7 +200,7 @@ for name,piece in Pieces.items():
 
 def dfs(loc, board, pieces):
     'Try to fit the remaining pieces onto the provided board.'
-    global solutions, args
+    global solutions, args, MIN, MAX
     r,c = loc
     # Try each piece in turn
     for name,orientations in pieces.items():
@@ -229,26 +229,25 @@ def dfs(loc, board, pieces):
                     nr,nc = next_free_loc((0,0), _board)
                     dfs((nr,nc), _board, remaining_pieces)
                 else: # Finished! Print out the board
+                    if args.all or args.minmax:
+                        if _board not in solutions:
+                            solutions.append(_board)
+                        return
+                    # Not trying to find all the solutions
                     print_pieces(Pieces)
                     print_board(_board)
-                    if not args.all:
-                        exit()
-                    if _board not in solutions:
-                        solutions.append(_board)
-                    return
+                    exit()
 
         # The piece didn't fit, try the next one
     # None of the pieces fitted. Go back to Old Kent Road
 
 # Parse the inputs
 parser = argparse.ArgumentParser()
-parser.add_argument('--all', action='store_true', help='Calculate all of the possible solutions rather than just the first.')
+parser.add_argument('--all',    action='store_true', help='Calculate all of the possible solutions rather than just the first.')
+parser.add_argument('--minmax', action='store_true', help='Determine the two dates with maximum and minimum solutions.')
 args = parser.parse_args()
 
-date = input('Input the required date, e.g. Feb 26: ')
-
-# Get the location of the day and month on the grid
-month_loc, day_loc = date_locs(G, date)
+month_loc, day_loc = None, None
 
 # List of solutions if we're finding all of them
 solutions = []
@@ -258,8 +257,38 @@ l = list(PIECES.items())
 random.shuffle(l)
 PIECES = dict(l)
 
-# Solve it
-dfs((0,0), G, PIECES)
+# Run the solver
+if args.minmax:
+    S = defaultdict(list)
 
-if args.all:
-    print('There are {} solutions for {}'.format(len(solutions), date))
+    for month in ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']:
+        for day in ['1','2','3','4','5','6','7',
+                    '8','9','10','11','12','13','14',
+                    '15','16','17','18','19','20','21',
+                    '22','23','24','25','26','27','28',
+                    '29','30','31']:
+            date = month + ' ' + day
+            print(date)
+            month_loc, day_loc = date_locs(G, date)
+            # Solve it
+            dfs((0,0), G, PIECES)
+            # How many solutions for this date?
+            S[len(solutions)].append(date)
+            solutions = []
+    # Which is the min/max?
+    MAX = max(S.keys())
+    dates = ', '.join(S[MAX])
+    print('There are a maximum of {} solutions for these dates:'.format(MAX), dates)
+    MIN = min(S.keys())
+    dates = ', '.join(S[MIN])
+    print('There are a minimum of {} solutions for these dates:'.format(MIN), dates)
+
+else: # Solve for a particular date
+    date = input('Input the required date, e.g. Feb 26: ')
+    # Get the location of the day and month on the grid
+    month_loc, day_loc = date_locs(G, date)
+    # Solve it
+    dfs((0,0), G, PIECES)
+    # If we want all the solutions then print out how many there are for this date
+    if args.all:
+        print('There are {} solutions for {}'.format(len(solutions), date))

@@ -24,6 +24,27 @@ Pieces['f'] = ((0,0), (0,1), (0,2), (1,0), (1,2))
 Pieces['g'] = ((0,0), (0,1), (0,2), (0,3), (1,0))
 Pieces['h'] = ((0,0), (0,1), (0,2), (1,2), (2,2))
 
+DEFAULT = '\033[0m'
+BOLD    = '\033[1m'
+RED     = '\033[38;5;1m'
+GREEN   = '\033[38;5;2m'
+YELLOW  = '\033[38;5;3m'
+BLUE    = '\033[38;5;4m'
+PURPLE  = '\033[38;5;5m'
+CYAN    = '\033[38;5;6m'
+WHITE   = '\033[38;5;7m'
+GREY    = '\033[38;5;8m'
+
+Colours = {}
+Colours['a'] = RED
+Colours['b'] = GREEN
+Colours['c'] = YELLOW
+Colours['d'] = BLUE
+Colours['e'] = PURPLE
+Colours['f'] = CYAN
+Colours['g'] = WHITE
+Colours['h'] = GREY
+
 def date_locs(G, d):
     'Get the month/day locations on the board for the provided date.'
     month, day = d.split()
@@ -104,10 +125,11 @@ def print_pieces(pieces):
     print()
     rows = [''] * 4
     for name,piece in pieces.items():
+        colour = Colours[name]
         for r in range(4):
             row = ''
             for c in range(4):
-                if (r,c) in piece: rows[r] += '#'
+                if (r,c) in piece: rows[r] += colour + '#' + DEFAULT
                 else: rows[r] += ' '
             rows[r] += ' '
     header = ''.join([' {}   '.format(name) for name,_ in pieces.items()])
@@ -116,13 +138,33 @@ def print_pieces(pieces):
         print(row)
 
 def print_board(board):
-    'Print the board out.'
-    for r in range(len(board)):
+    'Print the board out, including a nice perimeter.'
+    for r in range(-1,len(board)+1):
         row = ''
-        for c in range(len(board[0])):
-            if (r,c) == month_loc: row += 'M'
-            elif (r,c) == day_loc: row += 'D'
-            else: row += board[r][c][0]
+        if   r == -1:         row = GREY + '┌──────┐' + DEFAULT
+        elif r == len(board): row = GREY + '└───┘' + DEFAULT
+        else:
+            row = ''
+            for c in range(-1,len(board[0])+1):
+                if c == -1: row += GREY + '│' + DEFAULT
+                elif c == len(board[0]):
+                    if board[r][c-1][0] == '.':
+                        if   r == 1: row += GREY + '┐' + DEFAULT
+                        elif r == 6: row += GREY + '┘' + DEFAULT
+                    else: row += GREY + '│' + DEFAULT
+                elif (r,c) == month_loc: row += BOLD + WHITE + 'M' + DEFAULT
+                elif (r,c) == day_loc  : row += BOLD + WHITE + 'D' + DEFAULT
+                elif board[r][c][0] == '.':
+                    if   r == 0: row += GREY + '│' + DEFAULT
+                    elif r == 1: row += GREY + '└' + DEFAULT
+                    elif r == 6:
+                        if   c == 3: row += GREY + '┌' + DEFAULT
+                        elif c == 7: row += GREY +'┌' + DEFAULT
+                        else: row += GREY +'─' + DEFAULT
+                else:
+                    piece  = board[r][c][0]
+                    colour = Colours[piece]
+                    row += colour + '#' + DEFAULT
         print(row)
 
 def next_free_loc(loc, board):
@@ -203,8 +245,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--all', action='store_true', help='Calculate all of the possible solutions rather than just the first.')
 args = parser.parse_args()
 
-date = input('Input the required date, e.g. Feb 26: ')
-
+#date = input('Input the required date, e.g. Feb 26: ')
+date = 'Jan 1'
 # Get the location of the day and month on the grid
 month_loc, day_loc = date_locs(G, date)
 

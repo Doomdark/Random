@@ -88,22 +88,14 @@ def mirrord(piece):
 
 def get_all_orientations(piece):
     'Find all the possible orientations of the provided piece'
-    p = set()
-    p.add(piece)
-    _piece = mirrorv(piece)
-    p.add(_piece)
-    _piece = mirrorh(_piece)
-    p.add(_piece)
-    _piece = mirrorv(_piece)
-    p.add(_piece)
-    _piece = mirrord(_piece)
-    p.add(_piece)
-    _piece = mirrorv(_piece)
-    p.add(_piece)
-    _piece = mirrorh(_piece)
-    p.add(_piece)
-    _piece = mirrorv(_piece)
-    p.add(_piece)
+    p = {piece}
+    p.add(_piece := mirrorv(piece))
+    p.add(_piece := mirrorh(_piece))
+    p.add(_piece := mirrorv(_piece))
+    p.add(_piece := mirrord(_piece))
+    p.add(_piece := mirrorv(_piece))
+    p.add(_piece := mirrorh(_piece))
+    p.add(_piece := mirrorv(_piece))
     return p
 
 def get_all_positions(piece):
